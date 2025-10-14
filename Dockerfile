@@ -59,9 +59,10 @@ COPY --from=builder /src/app/public ./public
 
 # Automatically leverage output traces to reduce image size
 # Copy the entire standalone server output into the /app root
-COPY --from=builder --chown=nextjs:nodejs /src/app/.next/standalone ./
-# Copy static assets
-COPY --from=builder --chown=nextjs:nodejs /src/app/.next/static ./.next/static
+# Copy the standalone Next.js server build (for src/ architecture)
+COPY --from=builder /src/app/.next/standalone ./
+# Copy the static assets
+COPY --from=builder /src/app/.next/static ./.next/static
 
 USER nextjs
 
