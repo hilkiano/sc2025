@@ -60,6 +60,10 @@ export const verifications = pgTable("verifications", {
     .notNull(),
 });
 
+// TODO: Add more tables
+// export const activities = pgTable("activities", {});
+// export const delegates = pgTable("delegates", {});
+
 export const schema = {
   users,
   sessions,
