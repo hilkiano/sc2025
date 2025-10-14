@@ -65,7 +65,7 @@ COPY --from=builder --chown=nextjs:nodejs /src/app/.next/static ./.next/static
 
 USER nextjs
 
-EXPOSE 3025
+EXPOSE 3000
 
 # FIX: When using standalone mode, you must run the generated server.js file directly
 # instead of relying on the 'next' CLI.
