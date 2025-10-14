@@ -21,6 +21,13 @@ jobs:
       - name: Build and push to dockerhub
         uses: docker/build-push-action@v5
         with:
-          context:
+          context: .
           push: true
           tags: hilkiano/sc-2025:latest
+          build-args: |
+            TELEGRAM_BOT_TOKEN=${{ secrets.ENV_TELEGRAM_BOT_TOKEN }}
+            BETTER_AUTH_SECRET=${{ secrets.ENV_BETTER_AUTH_SECRET }}
+            BETTER_AUTH_URL=${{ secrets.ENV_BETTER_AUTH_URL }}
+            DATABASE_URL=${{ secrets.ENV_DATABASE_URL }}
+            GOOGLE_CLIENT_ID=${{ secrets.ENV_GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.ENV_GOOGLE_CLIENT_SECRET }}
