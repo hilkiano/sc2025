@@ -32,15 +32,3 @@ jobs:
             "DATABASE_URL=${{ secrets.ENV_DATABASE_URL }}"
             "GOOGLE_CLIENT_ID=${{ secrets.ENV_GOOGLE_CLIENT_ID }}"
             "GOOGLE_CLIENT_SECRET=${{ secrets.ENV_GOOGLE_CLIENT_SECRET }}"
-
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            docker stop sc-2025 || true
-            docker rm sc-2025 || true
-            docker pull registry.hilkiano.com/sc-2025:latest
-            docker run -d -p 3025:3000 --name sc-2025 --env-file /opt/sc-2025/.env registry.hilkiano.com/sc-2025:latest

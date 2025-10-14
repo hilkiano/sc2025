@@ -47,7 +47,7 @@ WORKDIR /app
 # ENV NEXT_TELEMETRY_DISABLED=1
 
 ENV NODE_ENV=production \
-    PORT=3000 \
+    PORT=3025 \
     HOSTNAME="0.0.0.0"
 
 # Setup the non-root user (good practice)
@@ -65,7 +65,7 @@ COPY --from=builder --chown=nextjs:nodejs /src/app/.next/static ./.next/static
 
 USER nextjs
 
-EXPOSE 3000
+EXPOSE 3025
 
 # FIX: When using standalone mode, you must run the generated server.js file directly
 # instead of relying on the 'next' CLI.
