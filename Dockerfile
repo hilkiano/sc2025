@@ -29,7 +29,14 @@ RUN --mount=type=secret,id=TELEGRAM_BOT_TOKEN \
     --mount=type=secret,id=DATABASE_URL \
     --mount=type=secret,id=GOOGLE_CLIENT_ID \
     --mount=type=secret,id=GOOGLE_CLIENT_SECRET \
-    bun run build
+    /bin/sh -lc '\
+      export TELEGRAM_BOT_TOKEN="$(cat /run/secrets/TELEGRAM_BOT_TOKEN)" && \
+      export BETTER_AUTH_SECRET="$(cat /run/secrets/BETTER_AUTH_SECRET)" && \
+      export BETTER_AUTH_URL="$(cat /run/secrets/BETTER_AUTH_URL)" && \
+      export DATABASE_URL="$(cat /run/secrets/DATABASE_URL)" && \
+      export GOOGLE_CLIENT_ID="$(cat /run/secrets/GOOGLE_CLIENT_ID)" && \
+      export GOOGLE_CLIENT_SECRET="$(cat /run/secrets/GOOGLE_CLIENT_SECRET)" && \
+      bun run build'
 
 # Production image, copy all the files and run next
 FROM base AS runner

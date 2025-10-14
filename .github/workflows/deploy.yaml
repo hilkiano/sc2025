@@ -1,4 +1,4 @@
-name: Build and push Docker image to dockerhub
+name: Build and push Docker image to VPS
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
           username: ${{ secrets.VPS_REGISTRY_USER }}
           password: ${{ secrets.VPS_REGISTRY_PASS }}
 
-      - name: Build and push to dockerhub
+      - name: Build and push to VPS
         uses: docker/build-push-action@v5
         with:
           context: .
