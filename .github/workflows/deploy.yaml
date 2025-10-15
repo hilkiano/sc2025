@@ -41,14 +41,6 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
 
-          envs: |
-            TELEGRAM_BOT_TOKEN=${{ secrets.ENV_TELEGRAM_BOT_TOKEN }}
-            BETTER_AUTH_SECRET=${{ secrets.ENV_BETTER_AUTH_SECRET }}
-            BETTER_AUTH_URL=${{ secrets.ENV_BETTER_AUTH_URL }}
-            DATABASE_URL=${{ secrets.ENV_DATABASE_URL }}
-            GOOGLE_CLIENT_ID=${{ secrets.ENV_GOOGLE_CLIENT_ID }}
-            GOOGLE_CLIENT_SECRET=${{ secrets.ENV_GOOGLE_CLIENT_SECRET }}
-
           # Execution script on the remote VPS
           script: |
             echo "Stopping and removing old container..."
@@ -66,12 +58,12 @@ jobs:
               -e NODE_ENV=production \
               -e APP_ENV=production \
               -e HOSTNAME=0.0.0.0 \
-              -e DATABASE_URL="${DATABASE_URL}" \
-              -e GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID}" \
-              -e GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}" \
-              -e TELEGRAM_BOT_TOKEN="${TELEGRAM_BOT_TOKEN}" \
-              -e BETTER_AUTH_SECRET="${BETTER_AUTH_SECRET}" \
-              -e BETTER_AUTH_URL="${BETTER_AUTH_URL}" \
+              -e DATABASE_URL='${{ secrets.ENV_DATABASE_URL }}' \
+              -e GOOGLE_CLIENT_ID='${{ secrets.ENV_GOOGLE_CLIENT_ID }}' \
+              -e GOOGLE_CLIENT_SECRET='${{ secrets.ENV_GOOGLE_CLIENT_SECRET }}' \
+              -e TELEGRAM_BOT_TOKEN='${{ secrets.ENV_TELEGRAM_BOT_TOKEN }}' \
+              -e BETTER_AUTH_SECRET='${{ secrets.ENV_BETTER_AUTH_SECRET }}' \
+              -e BETTER_AUTH_URL='${{ secrets.ENV_BETTER_AUTH_URL }}' \
               registry.hilkiano.com/sc-2025:latest
 
             echo "Cleaning up old images..."
