@@ -16,5 +16,5 @@ Install with bun
 Testing deployment on dev environment
 
 ```bash
-  docker compose -f docker-compose.dev.yml up --build
+  docker compose -f docker-compose.yml up --build
 ```

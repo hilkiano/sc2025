@@ -33,3 +33,46 @@ jobs:
             DATABASE_URL=${{ secrets.ENV_DATABASE_URL }}
             GOOGLE_CLIENT_ID=${{ secrets.ENV_GOOGLE_CLIENT_ID }}
             GOOGLE_CLIENT_SECRET=${{ secrets.ENV_GOOGLE_CLIENT_SECRET }}
+
+      - name: Deploy to VPS and Cleanup
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_KEY }}
+
+          envs: |
+            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
+            BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
+            BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+
+          # Execution script on the remote VPS
+          script: |
+            echo "Stopping and removing old container..."
+            docker container stop sc2025 || true
+            docker container rm sc2025 || true
+
+            echo "Pulling latest image..."
+            docker pull registry.hilkiano.com/sc-2025:latest
+
+            echo "Starting new service with docker run..."
+            docker run -d \
+              --name sc2025 \
+              -p 3025:3025 \
+              --restart unless-stopped \
+              -e NODE_ENV=production \
+              -e APP_ENV=production \
+              -e HOSTNAME=0.0.0.0 \
+              -e DATABASE_URL=$DATABASE_URL \
+              -e GOOGLE_CLIENT_ID=$GOOGLE_CLIENT_ID \
+              -e GOOGLE_CLIENT_SECRET=$GOOGLE_CLIENT_SECRET \
+              -e TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN \
+              -e BETTER_AUTH_SECRET=$BETTER_AUTH_SECRET \
+              -e BETTER_AUTH_URL=$BETTER_AUTH_URL \
+              registry.hilkiano.com/sc-2025:latest
+
+            echo "Cleaning up old images..."
+            docker image prune -f
