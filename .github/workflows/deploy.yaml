@@ -42,12 +42,12 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
 
           envs: |
-            TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
-            BETTER_AUTH_SECRET=${{ secrets.BETTER_AUTH_SECRET }}
-            BETTER_AUTH_URL=${{ secrets.BETTER_AUTH_URL }}
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
-            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
-            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            TELEGRAM_BOT_TOKEN=${{ secrets.ENV_TELEGRAM_BOT_TOKEN }}
+            BETTER_AUTH_SECRET=${{ secrets.ENV_BETTER_AUTH_SECRET }}
+            BETTER_AUTH_URL=${{ secrets.ENV_BETTER_AUTH_URL }}
+            DATABASE_URL=${{ secrets.ENV_DATABASE_URL }}
+            GOOGLE_CLIENT_ID=${{ secrets.ENV_GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.ENV_GOOGLE_CLIENT_SECRET }}
 
           # Execution script on the remote VPS
           script: |
