@@ -19,16 +19,17 @@ jobs:
           username: ${{ secrets.VPS_REGISTRY_USER }}
           password: ${{ secrets.VPS_REGISTRY_PASS }}
 
-      - name: Build and push to VPS
-        uses: docker/build-push-action@v5
+      - name: Build and push image
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: registry.hilkiano.com/sc-2025:latest
-          secrets: |
-            "TELEGRAM_BOT_TOKEN=${{ secrets.ENV_TELEGRAM_BOT_TOKEN }}"
-            "BETTER_AUTH_SECRET=${{ secrets.ENV_BETTER_AUTH_SECRET }}"
-            "BETTER_AUTH_URL=${{ secrets.ENV_BETTER_AUTH_URL }}"
-            "DATABASE_URL=${{ secrets.ENV_DATABASE_URL }}"
-            "GOOGLE_CLIENT_ID=${{ secrets.ENV_GOOGLE_CLIENT_ID }}"
-            "GOOGLE_CLIENT_SECRET=${{ secrets.ENV_GOOGLE_CLIENT_SECRET }}"
+          build-args: |
+            APP_ENV=production
+            TELEGRAM_BOT_TOKEN=${{ secrets.ENV_TELEGRAM_BOT_TOKEN }}
+            BETTER_AUTH_SECRET=${{ secrets.ENV_BETTER_AUTH_SECRET }}
+            BETTER_AUTH_URL=${{ secrets.ENV_BETTER_AUTH_URL }}
+            DATABASE_URL=${{ secrets.ENV_DATABASE_URL }}
+            GOOGLE_CLIENT_ID=${{ secrets.ENV_GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.ENV_GOOGLE_CLIENT_SECRET }}

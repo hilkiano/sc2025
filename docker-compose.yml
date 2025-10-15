@@ -1,0 +1,18 @@
+services:
+  web:
+    container_name: sc2025
+    image: registry.hilkiano.com/sc-2025:latest
+    ports:
+      - "3025:3025"
+    environment:
+      NODE_ENV: production
+      APP_ENV: production
+      HOSTNAME: 0.0.0.0
+      DATABASE_URL: ${DATABASE_URL}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL}
+    restart: unless-stopped
+    command: ["node", "server.js"]

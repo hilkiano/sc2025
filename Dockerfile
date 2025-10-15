@@ -1,73 +1,85 @@
-# -----------------------------------------------------------------------------
-# This Dockerfile.bun is specifically configured for projects using Bun
-# For npm/pnpm or yarn, refer to the Dockerfile instead
-# -----------------------------------------------------------------------------
-
-# Use Bun's official image
 FROM oven/bun:1 AS base
-
-# Use /src/app for build stage
 WORKDIR /src/app
 
-# Install dependencies with bun
+# Variables for both build and run stages
+ARG APP_ENV=production
+ENV NODE_ENV=production
+ENV APP_ENV=${APP_ENV}
+
 FROM base AS deps
 COPY package.json bun.lock* ./
-# Note: For many environments, this still creates a Node.js-compatible node_modules
-# Bun is generally compatible with Next.js dependencies
+# Install dependencies
 RUN bun install --no-save --frozen-lockfile
 
-# Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /src/app
+
+# --- START BUILD-TIME SECRET INJECTION FIX (Modified for Local Dev) ---
+# Define build arguments for all secrets required by Next.js during `bun run build`.
+# IMPORTANT: Added default values (e.g., DUMMY_...) to prevent local `docker build`
+# or `docker compose build` from breaking when ARGs are not supplied.
+ARG TELEGRAM_BOT_TOKEN=DUMMY_TOKEN
+ARG BETTER_AUTH_SECRET=DUMMY_SECRET_FOR_BUILD
+ARG BETTER_AUTH_URL=http://localhost:3000
+ARG DATABASE_URL=postgresql://user:pass@host:5432/db-dummy
+ARG GOOGLE_CLIENT_ID=DUMMY_CLIENT_ID
+ARG GOOGLE_CLIENT_SECRET=DUMMY_CLIENT_SECRET
+
+# Set the environment variables so they are available to bun run build.
+# These will use the ARG value (real secret from CI, or DUMMY from local build).
+ENV TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+ENV BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+ENV BETTER_AUTH_URL=${BETTER_AUTH_URL}
+ENV DATABASE_URL=${DATABASE_URL}
+ENV GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+ENV GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+
+RUN if [ "$APP_ENV" = "development" ]; then cp .env .env; fi
+# --- END BUILD-TIME SECRET INJECTION FIX ---
+
 COPY --from=deps /src/app/node_modules ./node_modules
 COPY . .
 
-# Run the build. Next.js creates the standalone server bundle here.
-RUN --mount=type=secret,id=TELEGRAM_BOT_TOKEN \
-    --mount=type=secret,id=BETTER_AUTH_SECRET \
-    --mount=type=secret,id=BETTER_AUTH_URL \
-    --mount=type=secret,id=DATABASE_URL \
-    --mount=type=secret,id=GOOGLE_CLIENT_ID \
-    --mount=type=secret,id=GOOGLE_CLIENT_SECRET \
-    /bin/sh -lc '\
-      export TELEGRAM_BOT_TOKEN="$(cat /run/secrets/TELEGRAM_BOT_TOKEN)" && \
-      export BETTER_AUTH_SECRET="$(cat /run/secrets/BETTER_AUTH_SECRET)" && \
-      export BETTER_AUTH_URL="$(cat /run/secrets/BETTER_AUTH_URL)" && \
-      export DATABASE_URL="$(cat /run/secrets/DATABASE_URL)" && \
-      export GOOGLE_CLIENT_ID="$(cat /run/secrets/GOOGLE_CLIENT_ID)" && \
-      export GOOGLE_CLIENT_SECRET="$(cat /run/secrets/GOOGLE_CLIENT_SECRET)" && \
-      bun run build'
+# Run the build command
+RUN bun run build
 
-# Production image, copy all the files and run next
 FROM base AS runner
-# Use /app for the final deployment stage
 WORKDIR /app
 
-# Uncomment the following line in case you want to disable telemetry during runtime.
-# ENV NEXT_TELEMETRY_DISABLED=1
+# Variables for the runner stage (these should include all runtime secrets)
+ARG APP_ENV=production
+# Redefine ARGs for runner stage (no defaults needed here, as they carry over from the build or are explicitly set at run time)
+ARG TELEGRAM_BOT_TOKEN
+ARG BETTER_AUTH_SECRET
+ARG BETTER_AUTH_URL
+ARG DATABASE_URL
+ARG GOOGLE_CLIENT_ID
+ARG GOOGLE_CLIENT_SECRET
 
-ENV NODE_ENV=production \
-    PORT=3025 \
+ENV NODE_ENV=production
+ENV APP_ENV=${APP_ENV}
+ENV PORT=3025 \
     HOSTNAME="0.0.0.0"
 
-# Setup the non-root user (good practice)
+# Set runtime environment variables using the ARGs passed during the build or at run time.
+# For production, these values will be overridden by runtime ENV variables (e.g., in Docker Compose, Kubernetes, or GitHub Actions deployment).
+ENV TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+ENV BETTER_AUTH_SECRET=${BETTER_AUTH_SECRET}
+ENV BETTER_AUTH_URL=${BETTER_AUTH_URL}
+ENV DATABASE_URL=${DATABASE_URL}
+ENV GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+ENV GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+
+# Create non-root user for security
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
-# COPY commands are now fixed to use /src/app/ path from the builder stage
-COPY --from=builder /src/app/public ./public 
-
-# Automatically leverage output traces to reduce image size
-# Copy the entire standalone server output into the /app root
-# Copy the standalone Next.js server build (for src/ architecture)
-COPY --from=builder /src/app/.next/standalone ./
-# Copy the static assets
-COPY --from=builder /src/app/.next/static ./.next/static
+# Copy Next.js artifacts
+COPY --from=builder /src/app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /src/app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /src/app/.next/static ./.next/static
 
 USER nextjs
-
 EXPOSE 3025
 
-# FIX: When using standalone mode, you must run the generated server.js file directly
-# instead of relying on the 'next' CLI.
 CMD ["node", "server.js"]
