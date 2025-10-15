@@ -35,7 +35,7 @@ jobs:
             GOOGLE_CLIENT_SECRET=${{ secrets.ENV_GOOGLE_CLIENT_SECRET }}
 
       - name: Deploy to VPS and Cleanup
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@v0.1.4
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
