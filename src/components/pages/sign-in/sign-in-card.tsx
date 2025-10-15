@@ -1,8 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { authClient } from "@/lib/auth-client";
+import Image from "next/image";
 
 export function SignInCard() {
   const handleGoogleSignIn = async () => {
@@ -15,6 +22,9 @@ export function SignInCard() {
     <Card className="w-full max-w-sm mx-4 sm:mx-0">
       <CardHeader>
         <CardTitle className="text-xl">Masuk Aplikasi</CardTitle>
+        <CardDescription>
+          Mohon gunakan penyedia layanan sosial berikut
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Button
@@ -22,7 +32,12 @@ export function SignInCard() {
           variant="default"
           className="w-full"
         >
-          Menggunakan Google
+          <Image
+            src={"/google-logo.svg"}
+            alt="Google logo"
+            className="w-4 h-4"
+          />
+          Akun Google
         </Button>
       </CardContent>
     </Card>

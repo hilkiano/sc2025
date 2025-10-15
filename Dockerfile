@@ -33,8 +33,6 @@ ENV BETTER_AUTH_URL=${BETTER_AUTH_URL}
 ENV DATABASE_URL=${DATABASE_URL}
 ENV GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
 ENV GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-
-RUN if [ "$APP_ENV" = "development" ]; then cp .env .env; fi
 # --- END BUILD-TIME SECRET INJECTION FIX ---
 
 COPY --from=deps /src/app/node_modules ./node_modules

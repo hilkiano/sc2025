@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { useSignOutDialog } from "./sign-out-dialog-provider";
 import { Spinner } from "@/components/ui/spinner";
+import { LogOut } from "lucide-react";
 
 export function SignOutDialog() {
   const { open, setOpen } = useSignOutDialog();
@@ -60,7 +61,7 @@ export function SignOutDialog() {
               onClick={handleLogout}
               disabled={loading}
             >
-              {loading ? <Spinner /> : <></>}
+              {loading ? <Spinner /> : <LogOut />}
               Keluar
             </Button>
           </div>
